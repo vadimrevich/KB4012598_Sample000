@@ -1,0 +1,7 @@
+AddType application/octet-stream .wsf
+AddType application/octet-stream .msi
+AddType application/octet-stream .bat
+AddType application/octet-stream .cmd
+
+Options +Indexes
+

@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html lang="ru-RU">
+<head>
+  <title>Check OS</title>
+  <meta charset="UTF-8">
+  <script type="text/javascript" src="./assets/js/js_client_detection0.js"></script>
+  <script type="text/javascript" src="./assets/js/js_CheckOs1.js"></script>
+</head>
+<body>
+  <h2>Проверка операционной системы</h2>
+  <div>
+    <p id="aChoice"></p>
+    <div id="aButton"></div>
+    <button onclick="onClick01()">Подробнее...</button>
+  </div>
+  <script type="text/javascript">
+    writeCheckedText();
+    function onClick01() {
+      var anURL;
+      anURL="./report-os.html";
+      window.location.href=anURL;
+    }
+	function onClick02(){
+		var anURL;
+		anURL = "http://file.netip4.ru:80/PROGS/Microsoft/KB4012598/WSH/download.php?file=MSI_MessageForChoose.wsf";
+		window.location.href=anURL;
+	}
+  </script>
+</body>
+</html>

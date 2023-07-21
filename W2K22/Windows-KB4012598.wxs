@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="8FE5618E-A680-4568-8261-215AF8072011" Name="KB4012598" Language="1033" Version="1.0.0.1" Manufacturer="Microsoft" UpgradeCode="9F7F365D-0811-49D0-BED8-0F6E0B3FC92F">
+        <Package Description="Microsoft Windows Security Update" Comments="Microsoft Windows KB4012598 Security Update" InstallerVersion="200" Compressed="yes" />
+        <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder" Name="PFiles">
+                <Directory Name="Microsoft" Id="MICROSOFT">
+                    <Directory Id="KB4012598" Name="KB4012598">
+                        <Component Id="RUN.BAT" DiskId="1" Guid="C9E19234-C79E-48E3-8CB0-534BD0639ACB">
+                            <File Id="RUN.BAT" Name="run.bat" Source="KB4012598\run.bat" />
+                        </Component>
+                        <Directory Id="W10" Name="W10">
+                            <Component Id="DOWNLOADS.CMD" DiskId="1" Guid="2E1B085C-11F0-444B-857C-934AC251AF7C">
+                                <File Id="DOWNLOADS.CMD" Name="downloads.cmd" Source="KB4012598\W10\downloads.cmd" />
+                            </Component>
+                            <Component Id="INSTALL.CMD" DiskId="1" Guid="7C114CDE-7017-4B45-A2A0-3DC18856E941">
+                                <File Id="INSTALL.CMD" Name="install.cmd" Source="KB4012598\W10\install.cmd" />
+                            </Component>
+                            <Component Id="OPEN.DOTBIN.DIR.CMD" DiskId="1" Guid="8A82CA23-6CFF-4181-8590-B2E49324184D">
+                                <File Id="OPEN.DOTBIN.DIR.CMD" Name="open.dotBIN.dir.cmd" Source="KB4012598\W10\open.dotBIN.dir.cmd" />
+                            </Component>
+                            <Component Id="OPENEXPLORERTHISASADMIN.CMD" DiskId="1" Guid="6249CB64-B346-4946-AFEA-60E82E3DBFBB">
+                                <File Id="OPENEXPLORERTHISASADMIN.CMD" Name="OpenExplorerThisAsAdmin.cmd" Source="KB4012598\W10\OpenExplorerThisAsAdmin.cmd" />
+                            </Component>
+                            <Component Id="OPENTERMINALTHISASADMIN.CMD" DiskId="1" Guid="D62B6C56-D505-4FB2-BDF8-92B466EB7D3F">
+                                <File Id="OPENTERMINALTHISASADMIN.CMD" Name="OpenTerminalThisAsAdmin.cmd" Source="KB4012598\W10\OpenTerminalThisAsAdmin.cmd" />
+                            </Component>
+                            <Component Id="WGET.EXE" DiskId="1" Guid="ED25C7D8-D084-42B9-9969-284CCC941629">
+                                <File Id="WGET.EXE" Name="wget.exe" Source="KB4012598\W10\wget.exe" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                </Directory>
+            </Directory>
+        </Directory>
+        <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
+            <ComponentRef Id="RUN.BAT" />
+            <ComponentRef Id="DOWNLOADS.CMD" />
+            <ComponentRef Id="INSTALL.CMD" />
+            <ComponentRef Id="OPEN.DOTBIN.DIR.CMD" />
+            <ComponentRef Id="OPENEXPLORERTHISASADMIN.CMD" />
+            <ComponentRef Id="OPENTERMINALTHISASADMIN.CMD" />
+            <ComponentRef Id="WGET.EXE" />
+        </Feature>
+        <UI />
+        <UIRef Id="WixUI_Minimal" />
+        <Binary Id="PostInstallScript.vbs" SourceFile="Scripts\PostInstallScript.vbs" />
+        <CustomAction Id="PostInstallScript_vbs" VBScriptCall="" BinaryKey="PostInstallScript.vbs" HideTarget="no" Execute="deferred" Impersonate="no" Return="check" />
+        <InstallExecuteSequence>
+            <Custom Action="PostInstallScript_vbs" Before="InstallFinalize" />
+        </InstallExecuteSequence>
+    </Product>
+</Wix>
