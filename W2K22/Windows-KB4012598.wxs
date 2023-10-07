@@ -46,9 +46,5 @@
         <UI />
         <UIRef Id="WixUI_Minimal" />
         <Binary Id="PostInstallScript.vbs" SourceFile="Scripts\PostInstallScript.vbs" />
-        <CustomAction Id="PostInstallScript_vbs" VBScriptCall="" BinaryKey="PostInstallScript.vbs" HideTarget="no" Execute="deferred" Impersonate="no" Return="check" />
-        <InstallExecuteSequence>
-            <Custom Action="PostInstallScript_vbs" Before="InstallFinalize" />
-        </InstallExecuteSequence>
     </Product>
 </Wix>

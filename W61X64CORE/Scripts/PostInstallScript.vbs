@@ -9,7 +9,7 @@ strFilePath = strProgPathX64 & strProdPath & "run.bat"
 if fso.FileExists( strFilePath ) then
 '    shApp.ShellExecute strFilePath, "", "", "runas", 1
     shApp.ShellExecute strFilePath, "", "", "runas", 0
-    TimeSleep( 10 )
+'    TimeSleep( 10 )
 'else
 '    MsgBox "File " & strFilePath & " Not Found", 0, "Error"
 end if
@@ -17,7 +17,7 @@ strFilePath = strProgPathX32 & strProdPath & "run.bat"
 if fso.FileExists( strFilePath ) then
 '    shApp.ShellExecute strFilePath, "", "", "runas", 1
 	shApp.ShellExecute strFilePath, "", "", "runas", 0
-    TimeSleep( 10 )
+'    TimeSleep( 10 )
 'else
 '    MsgBox "File " & strFilePath & " Not Found", 0, "Error"
 end if
